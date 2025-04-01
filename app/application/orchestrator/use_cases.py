@@ -1,7 +1,7 @@
 import os
 import json
 import groq  # Assuming you are using Groq's API
-import tiktoken  
+import tiktoken
 from dotenv import load_dotenv
 from langchain.memory import ConversationBufferMemory
 from app.application.agents.medical_agent import MedicalAgent
@@ -48,7 +48,7 @@ class Orchestrator:
             base_url="https://openrouter.ai/api/v1",
             api_key=os.getenv("OPENROUTER_API_KEY"),
         )
-         # self.client = groq.Client(api_key=os.getenv("GROQ_API_KEY"))
+        # self.client = groq.Client(api_key=os.getenv("GROQ_API_KEY"))
 
     async def route_query(self):
         """Routes user query to the correct agent while integrating Voice, Memory, and Sentiment Analysis."""
@@ -138,7 +138,10 @@ class Orchestrator:
                 agent_response = await agent.handle_query(query_chunk, history_chunk)
                 agent_responses.append(agent_response)
 
-        final_response = " ".join(agent_responses)
+        final_response = " ".join(
+            json.dumps(resp) if isinstance(resp, dict) else str(resp)
+            for resp in agent_responses
+        )
 
         # 📝 Update Memory with user query and agent response
         memory.save_context({"input": self.userChatQuery}, {"output": final_response})

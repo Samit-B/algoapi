@@ -14,7 +14,7 @@ class CalendarAgent(Agent):
             base_url="https://openrouter.ai/api/v1",
             api_key=os.getenv("OPENROUTER_API_KEY"),
         )
-         # self.client = groq.Client(api_key=os.getenv("GROQ_API_KEY"))
+        # self.client = groq.Client(api_key=os.getenv("GROQ_API_KEY"))
 
     async def handle_query(self, userChatQuery: str, chatHistory: str):
         response = self.client.chat.completions.create(

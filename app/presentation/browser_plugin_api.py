@@ -1,7 +1,6 @@
-from fastapi import FastAPI, APIRouter, Request
+from fastapi import FastAPI, APIRouter
 from pydantic import BaseModel
 from typing import Optional
-from app.application.orchestrator.use_cases import Orchestrator
 
 app = FastAPI()
 browserPluginApiRouter = APIRouter()

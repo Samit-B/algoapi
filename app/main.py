@@ -2,8 +2,8 @@ from fastapi import FastAPI
 from app.presentation.chat_api import chatRouter
 from app.presentation.project_api import projectApiRouter
 from app.presentation.browser_plugin_api import browserPluginApiRouter
-from app.application.agents.calendar_agent import CalendarAgent
-from app.infrastructure.services.calendar.google_calendar import GoogleCalendar
+from app.presentation.program_api import programApiRouter
+from app.presentation.task_api import taskApiRouter
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
@@ -19,9 +19,9 @@ app.include_router(chatRouter, prefix="/chat", tags=["ChatAPI"])
 app.include_router(
     browserPluginApiRouter, prefix="/browserPlugin", tags=["BrowserPluginAPI"]
 )
-app.include_router(
-    projectApiRouter, prefix="/project", tags=["ProjectAPI"]
-)   
+app.include_router(projectApiRouter, prefix="/project", tags=["ProjectAPI"])
+app.include_router(programApiRouter, prefix="/program", tags=["ProgramAPI"])
+app.include_router(taskApiRouter, prefix="/task", tags=["TaskAPI"])
 
 
 @app.get("/")

@@ -16,13 +16,10 @@ class SocialMediaAgent(Agent):
         )
         # self.client = groq.Client(api_key=os.getenv("GROQ_API_KEY"))
 
-
-
     async def handle_query(self, userChatQuery: str, chatHistory: str):
         response = self.client.chat.completions.create(
             model="mistralai/mistral-small-24b-instruct-2501:free",
             # model="llama-3.3-70b-versatile",  # Use the best available Groq model
-
             messages=[
                 {
                     "role": "system",

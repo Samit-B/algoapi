@@ -4,6 +4,7 @@ from fastapi import HTTPException
 from bson import ObjectId
 from app.infrastructure.db.mongo_db import db
 from app.domain.projectApis.project_service_interfaces import ProjectServiceInterface
+from fastapi.encoders import jsonable_encoder  # Import for sanitizing input data
 
 class ProjectServiceMongoImplementation:
     async def GetProjects(self, projectIds: Optional[str] = None) -> List[Dict]:
@@ -120,9 +121,16 @@ class ProjectServiceMongoImplementation:
         Implementation of CreateProject to insert a new project into MongoDB.
         """
         collection = db["projects"]
+
+        # Sanitize input data to ensure it is JSON-serializable
+        try:
+            project_data = jsonable_encoder(project_data)
+        except Exception as e:
+            raise HTTPException(status_code=400, detail=f"Invalid input data: {str(e)}")
+
         result = await collection.insert_one(project_data)
         project_data["_id"] = str(result.inserted_id)  # Convert ObjectId to string
-        return 
-    
-    
+        return project_data
+
+
 

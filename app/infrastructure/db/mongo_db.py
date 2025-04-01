@@ -5,6 +5,7 @@ MONGO_URL = "mongodb://localhost:27017"
 client = AsyncIOMotorClient(MONGO_URL)
 db = client["project_management"]
 
+
 class MongoDB:
     def __init__(self):
         try:
@@ -21,16 +22,18 @@ class MongoDB:
         if not collections:
             return []
 
-
         # Iterate through each collection and fetch documents
         for collection_name in collections:
             collection = self.db[collection_name]
             documents = list(collection.find())  # Fetch **all fields** in the document
 
             for doc in documents:
-                doc["_id"] = str(doc["_id"])  # Convert ObjectId to string for compatibility
-                doc["collection_name"] = collection_name  # Store collection name for metadata
+                doc["_id"] = str(
+                    doc["_id"]
+                )  # Convert ObjectId to string for compatibility
+                doc["collection_name"] = (
+                    collection_name  # Store collection name for metadata
+                )
                 all_documents.append(doc)
 
         return all_documents
-

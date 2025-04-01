@@ -3,6 +3,7 @@ from app.infrastructure.db.sqlite_db import SQLite
 from app.infrastructure.db.mongo_db import MongoDB
 from app.infrastructure.db.database_interface import DatabaseInterface
 
+
 class DatabaseFactory:
     @staticmethod
     def get_database() -> DatabaseInterface:

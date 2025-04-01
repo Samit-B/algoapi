@@ -3,7 +3,7 @@ from typing import Dict, Optional
 
 class ProgramServiceInterface(ABC):
     @abstractmethod
-    async def GetProgramss(programIds: Optional[list] = None) -> list:
+    async def GetPrograms(programIds: Optional[list] = None) -> list:
         pass
     @abstractmethod
     async def CreateProgram(self, program_data: Dict) -> Dict:

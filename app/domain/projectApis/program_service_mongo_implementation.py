@@ -1,68 +1,96 @@
-from abc import ABC, abstractmethod
-from typing import Dict, List, Optional
+from fastapi.encoders import jsonable_encoder
+from fastapi import HTTPException
+from typing import Dict, Any, List, Optional
 from bson import ObjectId
 from app.infrastructure.db.mongo_db import db
- 
-from app.domain.projectApis.project_service_mongo_implementation import ProjectServiceInterface
 
-class ProgramServiceMongoImplementation(ProjectServiceInterface):
-    async def GetProjects(self, projectIds: Optional[str] = None) -> List[Dict]:
+class ProgramServiceMongoImplementation:
+    async def GetPrograms(self, programIds: Optional[str] = None) -> List[Dict[str, Any]]:
         """
-        Implementation of GetProjects to fetch projects from MongoDB.
-        If projectIds is None, fetch all projects.
+        Fetch programs from MongoDB.
+        - If `programIds` is provided, fetch only those programs.
+        - Otherwise, fetch all programs.
         """
-        collection = db["projects"]  # Access the 'projects' collection
+        collection = db["programs"]  
+        query = {}
 
-        if projectIds:
-            # Convert comma-separated IDs into a list of ObjectIds
-            project_ids_list = [ObjectId(pid) for pid in projectIds.split(",")]
-            # Query MongoDB for projects with matching IDs
-            cursor = collection.find({"_id": {"$in": project_ids_list}})
-        else:
-            # Query MongoDB for all projects
-            cursor = collection.find()
+        if programIds:
+            try:
+                program_ids_list = [ObjectId(pid) for pid in programIds.split(",")]
+                query = {"_id": {"$in": program_ids_list}}
+            except Exception:
+                raise HTTPException(status_code=400, detail="Invalid ObjectId format")
 
-        # Convert the cursor to a list of documents
-        projects = await cursor.to_list(length=None)
+        cursor = collection.find(query)
+        programs = await cursor.to_list(length=None)
 
-        # Convert ObjectId to string for each project
-        for project in projects:
-            project["_id"] = str(project["_id"])
+        def convert_objectid(doc):
+            """ Convert ObjectId fields to string in nested dictionaries and lists """
+            if isinstance(doc, dict):
+                return {k: convert_objectid(v) for k, v in doc.items()}
+            elif isinstance(doc, list):
+                return [convert_objectid(i) for i in doc]
+            elif isinstance(doc, ObjectId):
+                return str(doc)
+            return doc
 
-        return projects
+        return [convert_objectid(program) for program in programs]
 
-async def CreateProject(self, project_data: Dict) -> Dict:
+
+    async def GetProgramByPortfolio(self, portfolioIds: str) -> List[Dict[str, Any]]:
         """
-        Implementation of CreateProject to insert a new project into MongoDB.
+        Fetch programs associated with specific portfolio IDs.
         """
-        collection = db["projects"]
-        result = await collection.insert_one(project_data)
-        project_data["_id"] = str(result.inserted_id)  # Convert ObjectId to string
-        return 
+        collection = db["programs"]  
 
-async def GetProjectsByProgram(self, programIds: list) -> list:
+        if not portfolioIds:
+            raise HTTPException(status_code=400, detail="Portfolio IDs are required")  
+
+        try:
+            portfolio_ids_list = [ObjectId(pid) for pid in portfolioIds.split(",")]
+        except Exception:
+            raise HTTPException(status_code=400, detail="Invalid ObjectId format")  
+
+        cursor = collection.find({"portfolio_id": {"$in": portfolio_ids_list}})
+        programs = await cursor.to_list(length=None)
+
+        if not programs:
+            return []  
+  
+        def convert_objectid(doc):
+            """ Convert ObjectId fields to string in nested dictionaries and lists """
+            if isinstance(doc, dict):
+                return {k: convert_objectid(v) for k, v in doc.items()}
+            elif isinstance(doc, list):
+                return [convert_objectid(i) for i in doc]
+            elif isinstance(doc, ObjectId):
+                return str(doc)
+            return doc
+
+        return [convert_objectid(program) for program in programs]  
+
+
+    async def CreateProgram(self, program_data: Dict[str, Any]) -> Dict[str, Any]:
         """
-        Fetch projects associated with specific program IDs.
+        Insert a new program into the 'program' collection in MongoDB.
         """
-        collection = db["programs"]
-        program_ids_list = [ObjectId(pid) for pid in programIds]
-        cursor = collection.find({"programId": {"$in": program_ids_list}})
-        projects = await cursor.to_list(length=None)
-        for project in projects:
-            project["_id"] = str(project["_id"])
-        return projects
+        collection = db["programs"]  
 
+        # Required fields validation
+        required_fields = ["name", "description", "manager_id", "start_date", 
+                           "end_date", "portfolio_id"]
+        for field in required_fields:
+            if field not in program_data or not program_data[field]:
+                raise HTTPException(status_code=400, detail=f"Missing required field: {field}")
 
-async def GetProjectsByPortfolio(self, portfolioIds: list) -> list:
-    """
-    Fetch projects associated with specific portfolio IDs.
-    """
-    collection = db["prrtfolios"]
-    portfolio_ids_list = [ObjectId(pid) for pid in portfolioIds]
-    cursor = collection.find({"portfolioId": {"$in": portfolio_ids_list}})
-    projects = await cursor.to_list(length=None)
-    for project in projects:
-        project["_id"] = str(project["_id"])
-    return projects
+        # Sanitize and encode input
+        try:
+            program_data = jsonable_encoder(program_data)
+        except Exception as e:
+            raise HTTPException(status_code=400, detail=f"Invalid input data: {str(e)}")
 
-
+        # Insert into the database
+        result = await collection.insert_one(program_data)
+        program_data["_id"] = str(result.inserted_id)  # Convert ObjectId to string
+        
+        return {"message": "Program created successfully", "program": program_data}

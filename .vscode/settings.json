@@ -1,4 +1,6 @@
+
 {
-  "python.formatting.provider": "ms-python.autopep8",
-  "editor.formatOnSave": true
+  "files.exclude": {
+      "**/__pycache__": true
+  }
 }
