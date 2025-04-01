@@ -11,7 +11,6 @@ class MongoDB:
         try:
             self.client = MongoClient("mongodb://localhost:27017/")
             self.db = self.client["project_management"]
-            print("Connected to MongoDB successfully!")
         except Exception as e:
             print("MongoDB Connection Error:", e)
 

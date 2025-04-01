@@ -16,7 +16,6 @@ chroma_collection = chroma_client.get_or_create_collection(
     name="district_project_management",  # Removed embedding_function argument
     metadata={"hnsw:space": "cosine"},
 )
-print("New ChromaDB collection created: project_management")
 
 
 def update_embeddings(batch_size=10):
