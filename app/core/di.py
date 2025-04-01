@@ -1,6 +1,8 @@
 from dependency_injector import containers, providers
+
 # Ensure the correct import path
 from app.infrastructure.db.mongo_db import MongoDB
+
 # Ensure the correct import path
 from app.infrastructure.db.sqlite_db import SQLite
 from app.core.config import Settings
@@ -16,5 +18,4 @@ class Container(containers.DeclarativeContainer):
     # Inject MicrosoftCalendar for CalendarService
     calendar_service = providers.Factory(MicrosoftCalendar)
     # Provide CalendarService to CalendarAgent
-    calendar_agent = providers.Factory(
-        CalendarAgent, calendar_service=calendar_service)
+    calendar_agent = providers.Factory(CalendarAgent, calendar_service=calendar_service)
