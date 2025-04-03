@@ -6,6 +6,7 @@ from app.infrastructure.services.vector.vector_store import retrieve_relevant_te
 from app.domain.projectApis.project_service_mongo_implementation import (
     ProjectServiceMongoImplementation,
 )
+import groq
 from fastapi.encoders import jsonable_encoder
 from openai import OpenAI
 
@@ -15,10 +16,7 @@ project_service = ProjectServiceMongoImplementation()
 class ProjectAgent(Agent):
     def __init__(self):
         """Initialize the LLM client"""
-        self.client = OpenAI(
-            base_url="https://openrouter.ai/api/v1",
-            api_key=os.getenv("OPENROUTER_API_KEY"),
-        )
+        self.client = groq.Client(api_key=os.getenv("GROQ_API_KEY"))
 
     async def handle_query(self, userChatQuery, chatHistory):
         """Handles user queries by detecting intent and processing accordingly."""
@@ -177,7 +175,7 @@ class ProjectAgent(Agent):
     def query_llm(self, prompt):
         """Sends the prompt to LLM and returns the response."""
         response = self.client.chat.completions.create(
-            model="mistralai/mistral-small-24b-instruct-2501:free",
+            model="llama-3.3-70b-versatile",
             messages=[
                 {
                     "role": "system",

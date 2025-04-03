@@ -43,10 +43,8 @@ class Orchestrator:
     def __init__(self, userChatQuery: str):
         self.userChatQuery = userChatQuery
         self.chatHistory = memory.load_memory_variables({})["chat_history"]
-        # self.client = groq.Client(api_key=os.getenv("GROQ_API_KEY"))  # Fetch API key from .env
-        self.client = OpenAI(
-            base_url="https://openrouter.ai/api/v1",
-            api_key=os.getenv("OPENROUTER_API_KEY"),
+        self.client = groq.Client(
+            api_key="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"
         )
         # self.client = groq.Client(api_key=os.getenv("GROQ_API_KEY"))
 
@@ -66,8 +64,8 @@ class Orchestrator:
             for history_chunk in history_chunks or [""]:  # Ensure history exists
                 try:
                     response = self.client.chat.completions.create(
-                        # model="llama-3.3-70b-versatile",  # Use the best available Groq model
-                        model="mistralai/mistral-small-24b-instruct-2501:free",
+                        model="llama-3.3-70b-versatile",  # Use the best available Groq model
+                        # model="mistralai/mistral-small-24b-instruct-2501:free",
                         messages=[
                             {
                                 "role": "system",
