@@ -43,10 +43,7 @@ class Orchestrator:
     def __init__(self, userChatQuery: str):
         self.userChatQuery = userChatQuery
         self.chatHistory = memory.load_memory_variables({})["chat_history"]
-        self.client = groq.Client(
-            api_key="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"
-        )
-        # self.client = groq.Client(api_key=os.getenv("GROQ_API_KEY"))
+        self.client = groq.Client(api_key=os.getenv("GROQ_API_KEY"))
 
     async def route_query(self):
         """Routes user query to the correct agent while integrating Voice, Memory, and Sentiment Analysis."""
